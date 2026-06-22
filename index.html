@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>هفتهٔ معمولیِ غیرمعمولیِ حسن</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --sky: #4FC3F7;
+    --sun: #FFD54F;
+    --grass: #81C784;
+    --coral: #FF7043;
+    --lavender: #CE93D8;
+    --mint: #80DEEA;
+    --peach: #FFAB91;
+    --card-bg: #FFFDE7;
+    --page-bg: #F0F9FF;
+    --text-dark: #37474F;
+    --text-mid: #546E7A;
+    --shadow: 0 8px 32px rgba(79,195,247,0.13);
+    --radius: 28px;
+    --radius-sm: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Vazirmatn', 'Tahoma', 'Arial', sans-serif;
+    background: var(--page-bg);
+    color: var(--text-dark);
+    min-height: 100vh;
+    direction: rtl;
+    overflow-x: hidden;
+  }
+
+  /* ───── PROGRESS BAR ───── */
+  #progress-bar-wrap {
+    position: fixed; top: 0; right: 0; left: 0; height: 7px; z-index: 999;
+    background: rgba(255,255,255,0.4);
+  }
+  #progress-bar {
+    height: 100%; background: linear-gradient(90deg, var(--sky), var(--coral), var(--sun));
+    width: 0%; transition: width .4s ease;
+    border-radius: 0 4px 4px 0;
+  }
+
+  /* ───── WRAPPER ───── */
+  #app {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 18px 12px 32px;
+    padding-top: 26px;
+  }
+
+  /* ───── PAGE CARD ───── */
+  .page-card {
+    display: none;
+    width: 100%; max-width: 720px;
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow), 0 2px 0 0 #e3f2fd;
+    padding: 32px 36px 28px;
+    animation: fadeSlideIn .55s cubic-bezier(.22,.68,0,1.2) both;
+    position: relative;
+    border: 3px solid rgba(79,195,247,0.18);
+  }
+  .page-card.active { display: block; }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(28px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0)  scale(1); }
+  }
+
+  /* ───── PAGE HEADER BAND ───── */
+  .page-band {
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    padding: 10px 20px 8px;
+    margin: -32px -36px 22px;
+    font-size: .82rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: space-between;
+    color: #fff; letter-spacing: .02em;
+  }
+
+  /* ───── IMAGE PLACEHOLDER ───── */
+  .img-box {
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-bottom: 10px;
+    min-height: 190px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative;
+    border: 2.5px dashed rgba(79,195,247,0.35);
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+  }
+  .img-emoji { font-size: 5rem; line-height: 1; margin-bottom: 6px; }
+  .img-prompt-label {
+    font-size: .67rem; color: #90A4AE; font-weight: 600;
+    background: rgba(255,255,255,.7); border-radius: 8px;
+    padding: 4px 10px; position: absolute; bottom: 8px; right: 10px;
+  }
+  .img-caption {
+    text-align: center; font-size: .82rem; color: var(--text-mid);
+    font-weight: 500; margin-bottom: 18px; line-height: 1.6;
+  }
+
+  /* ───── STORY TEXT ───── */
+  .story-text {
+    font-size: 1.08rem; line-height: 2.1;
+    color: var(--text-dark); font-weight: 400;
+  }
+  .story-text p { margin-bottom: .9em; }
+  .story-text strong { color: var(--coral); font-weight: 700; }
+
+  /* ───── NAVIGATION ───── */
+  .nav-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 28px; gap: 10px;
+  }
+  .btn {
+    border: none; cursor: pointer; font-family: inherit;
+    font-weight: 700; border-radius: 50px; padding: 12px 26px;
+    font-size: .95rem; transition: transform .15s, box-shadow .15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.13); }
+  .btn:active { transform: scale(.96); }
+  .btn-next { background: linear-gradient(135deg, var(--sky), #0288D1); color: #fff; }
+  .btn-prev { background: linear-gradient(135deg, var(--lavender), #7B1FA2); color: #fff; }
+  .btn-quiz { background: linear-gradient(135deg, var(--sun), var(--coral)); color: #fff; }
+  .btn-home { background: #fff; color: var(--text-mid); border: 2px solid #e0e0e0; }
+  .page-num { font-size: .85rem; color: var(--text-mid); font-weight: 600; }
+
+  /* ───── COVER ───── */
+  #cover-page {
+    background: linear-gradient(160deg, #1565C0 0%, #4FC3F7 50%, #B2EBF2 100%);
+    color: #fff; text-align: center; border: none;
+    min-height: 88vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 18px;
+  }
+  #cover-page .cover-emoji { font-size: 6rem; animation: bounce 1.8s infinite; }
+  @keyframes bounce {
+    0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}
+  }
+  #cover-page h1 { font-size: 2rem; font-weight: 800; line-height: 1.35; text-shadow: 0 2px 12px rgba(0,0,0,.18); }
+  #cover-page .cover-sub { font-size: 1rem; opacity: .9; font-weight: 500; margin-top: -6px; }
+  #cover-page .cover-badge {
+    background: rgba(255,255,255,.18); border-radius: 50px;
+    padding: 8px 22px; font-size: .85rem; font-weight: 600;
+    border: 2px solid rgba(255,255,255,.35); margin-top: 4px;
+  }
+  #cover-page .btn-start {
+    background: var(--sun); color: #37474F;
+    padding: 16px 44px; font-size: 1.15rem; font-weight: 800;
+    border-radius: 50px; border: none; cursor: pointer;
+    box-shadow: 0 8px 28px rgba(0,0,0,.18);
+    transition: transform .2s, box-shadow .2s;
+    font-family: inherit; margin-top: 8px;
+  }
+  #cover-page .btn-start:hover { transform: scale(1.05); box-shadow: 0 12px 36px rgba(0,0,0,.22); }
+
+  /* ───── END PAGE ───── */
+  #end-page {
+    text-align: center;
+    background: linear-gradient(160deg, #1B5E20, #66BB6A, #C8E6C9);
+    color: #fff; border: none;
+    min-height: 70vh; display: none; flex-direction: column;
+    align-items: center; justify-content: center; gap: 16px;
+  }
+  #end-page.active { display: flex; }
+  #end-page .end-emoji { font-size: 5.5rem; }
+  #end-page h2 { font-size: 1.8rem; font-weight: 800; }
+  #end-page p { font-size: 1rem; opacity: .92; max-width: 400px; line-height: 1.8; }
+
+  /* ───── QUIZ ───── */
+  #quiz-page {
+    display: none; background: linear-gradient(135deg, #FFF9C4, #FFF3E0);
+    border: 3px solid var(--sun);
+  }
+  #quiz-page.active { display: block; }
+  .quiz-title { font-size: 1.4rem; font-weight: 800; color: var(--coral); margin-bottom: 6px; text-align: center; }
+  .quiz-sub { font-size: .88rem; color: var(--text-mid); text-align: center; margin-bottom: 24px; }
+  .q-block { margin-bottom: 22px; }
+  .q-label { font-size: 1rem; font-weight: 700; color: var(--text-dark); margin-bottom: 10px; line-height: 1.7; }
+  .q-opts { display: flex; flex-direction: column; gap: 9px; }
+  .q-opt {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,.8); border-radius: 12px;
+    padding: 11px 15px; border: 2.5px solid transparent;
+    cursor: pointer; font-family: inherit; font-size: .95rem;
+    font-weight: 500; transition: border-color .2s, background .2s;
+    width: 100%; text-align: right;
+  }
+  .q-opt:hover { border-color: var(--sky); background: #e3f2fd; }
+  .q-opt.selected { border-color: var(--sky); background: #e3f2fd; }
+  .q-opt.correct { border-color: #43A047; background: #E8F5E9; }
+  .q-opt.wrong   { border-color: #E53935; background: #FFEBEE; }
+  .quiz-result {
+    text-align: center; padding: 18px; border-radius: var(--radius-sm);
+    background: rgba(255,255,255,.7); margin-top: 16px; display: none;
+  }
+  .quiz-result .score { font-size: 2.5rem; font-weight: 800; }
+  .quiz-result .msg { font-size: 1rem; margin-top: 6px; line-height: 1.8; }
+  .quiz-result .star-row { font-size: 2rem; }
+
+  /* ───── ABOUT PAGE ───── */
+  #about-page {
+    display: none;
+    background: linear-gradient(135deg, #E8EAF6, #F3E5F5);
+    border: 3px solid var(--lavender);
+  }
+  #about-page.active { display: block; }
+  .about-title { font-size: 1.4rem; font-weight: 800; color: #6A1B9A; text-align: center; margin-bottom: 18px; }
+  .about-section { margin-bottom: 18px; }
+  .about-section h3 { font-size: 1rem; font-weight: 700; color: var(--coral); margin-bottom: 8px; }
+  .about-section ul { padding-right: 18px; }
+  .about-section li { font-size: .9rem; line-height: 2; color: var(--text-dark); }
+  .about-section p { font-size: .9rem; line-height: 1.9; color: var(--text-dark); }
+  .prompt-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .8rem; }
+  .prompt-table th, .prompt-table td { padding: 8px 10px; border: 1px solid #D1C4E9; text-align: right; }
+  .prompt-table th { background: #EDE7F6; font-weight: 700; }
+  .prompt-table tr:nth-child(even) { background: rgba(255,255,255,.55); }
+
+  /* ───── RESPONSIVE ───── */
+  @media (max-width: 560px) {
+    .page-card { padding: 22px 18px 20px; }
+    .page-band { margin: -22px -18px 16px; }
+    #cover-page h1 { font-size: 1.5rem; }
+    .story-text { font-size: .97rem; }
+    .btn { padding: 10px 18px; font-size: .85rem; }
+  }
+
+  /* ───── BAND COLORS per page ───── */
+  .band-blue   { background: linear-gradient(90deg, #1565C0, #42A5F5); }
+  .band-green  { background: linear-gradient(90deg, #2E7D32, #66BB6A); }
+  .band-orange { background: linear-gradient(90deg, #E65100, #FFA726); }
+  .band-purple { background: linear-gradient(90deg, #6A1B9A, #CE93D8); }
+  .band-teal   { background: linear-gradient(90deg, #00695C, #4DB6AC); }
+  .band-red    { background: linear-gradient(90deg, #B71C1C, #EF9A9A); }
+  .band-indigo { background: linear-gradient(90deg, #283593, #7986CB); }
+  .band-pink   { background: linear-gradient(90deg, #880E4F, #F48FB1); }
+</style>
+</head>
+<body>
+
+<div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+
+<div id="app">
+
+<!-- ══════════════════ COVER ══════════════════ -->
+<div class="page-card active" id="cover-page">
+  <div class="cover-emoji">📖</div>
+  <h1>هفتهٔ معمولیِ<br>غیرمعمولیِ حسن</h1>
+  <div class="cover-sub">یک داستان دربارهٔ سواد رسانه‌ای و اینترنت ایمن</div>
+  <div class="cover-badge">🎯 برای دانش‌آموزان ۷ تا ۱۰ سال</div>
+  <button class="btn-start" onclick="startBook()">شروع داستان ▶</button>
+</div>
+
+<!-- ══════════════════ PAGE 1 ══════════════════ -->
+<div class="page-card" id="p1">
+  <div class="page-band band-blue">
+    <span>📖 داستان</span><span>صفحهٔ ۱ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">👦</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">حسن — پسربچه‌ای ده‌ساله با موهای مشکی و چشمان کنجکاو</div>
+  <div class="story-text">
+    <p>حسن یک پسر ده‌ساله بود که در یک آپارتمان کوچک زندگی می‌کرد. او دانش‌آموز کلاس چهارم بود و یکی از بهترین شاگردهای مدرسه‌اش به حساب می‌آمد. هر روز صبح با صدای زنگ ساعت از خواب بیدار می‌شد، صبحانه‌اش را می‌خورد و با کوله‌ای پر از کتاب و دفتر راهی مدرسه می‌شد.</p>
+    <p>اما این هفته قرار بود با همهٔ هفته‌های دیگر فرق داشته باشد؛ هفته‌ای که حسن فهمید اینترنت هم مثل یک چاقو است — هم می‌تواند ابزار مفیدی باشد و هم اگر درست استفاده نشود، می‌تواند آسیب برساند.</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('cover-page')">◀ جلد</button>
+    <span class="page-num">۱ / ۱۶</span>
+    <button class="btn btn-next" onclick="goTo('p2')">بعدی ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 2 ══════════════════ -->
+<div class="page-card" id="p2">
+  <div class="page-band band-green">
+    <span>📖 داستان</span><span>صفحهٔ ۲ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">🌞</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">شنبه‌ صبح — آغاز یک هفتهٔ تازه</div>
+  <div class="story-text">
+    <p>شنبه صبح، مادر حسن یک تبلت جدید خرید و گفت: «حسن جان، این برای تکالیف مدرسه‌ات است. ولی باید یاد بگیری چطور درست ازش استفاده کنی.»</p>
+    <p>حسن هیجان‌زده تبلت را در دست گرفت. صفحهٔ روشن آن مثل آینه‌ای بود که دنیای بزرگی را نشان می‌داد. اما مادرش دستش را گرفت و گفت: «قبل از هر چیز، بیا با هم قوانین استفاده از اینترنت را مرور کنیم.»</p>
+    <p>حسن با کمی بی‌حوصلگی گفت: «مامان، مگه اینترنت هم قانون داره؟» مادرش خندید و جواب داد: «البته که دارد! درست مثل جاده‌ها که چراغ راهنما دارند، اینترنت هم قوانینی دارد که اگر رعایت نکنیم، ممکن است اتفاق‌های بدی بیفتد.»</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('p1')">◀ قبلی</button>
+    <span class="page-num">۲ / ۱۶</span>
+    <button class="btn btn-next" onclick="goTo('p3')">بعدی ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 3 ══════════════════ -->
+<div class="page-card" id="p3">
+  <div class="page-band band-orange">
+    <span>📖 داستان</span><span>صفحهٔ ۳ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">🔍</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">حسن در حال جستجو در اینترنت برای تکلیف مدرسه</div>
+  <div class="story-text">
+    <p>یکشنبه، معلم علوم از بچه‌ها خواست که دربارهٔ «تأثیر آلودگی هوا بر سلامت» تحقیق کنند. حسن با اشتیاق تبلت را باز کرد و شروع به جستجو کرد.</p>
+    <p>اولین نتیجه‌ای که دید، یک مقاله بود که می‌گفت: «آلودگی هوا باعث مرگ فوری می‌شود!» حسن ترسید. اما ناگهان به یاد حرف‌های مادرش افتاد: «همیشه قبل از باور کردن هر چیزی در اینترنت، اطلاعات را از چند منبع مختلف بررسی کن.»</p>
+    <p>حسن به سایت‌های دیگر هم نگاه کرد. دید که واقعیت پیچیده‌تر از آن چیزی است که در عنوان اول نوشته شده بود. او یاد گرفت که عنوان‌های ترسناک و اغراق‌آمیز در اینترنت زیاد هستند و نباید با اولین چیزی که می‌خواند، قضاوت کند.</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('p2')">◀ قبلی</button>
+    <span class="page-num">۳ / ۱۶</span>
+    <button class="btn btn-next" onclick="goTo('p4')">بعدی ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 4 ══════════════════ -->
+<div class="page-card" id="p4">
+  <div class="page-band band-purple">
+    <span>📖 داستان</span><span>صفحهٔ ۴ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">📱</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">دوشنبه — پیام‌های ناشناس و کنجکاوی خطرناک</div>
+  <div class="story-text">
+    <p>دوشنبه، حسن با یک اپلیکیشن پیام‌رسانی آشنا شد که دوستش رضا برایش معرفی کرده بود. در این اپلیکیشن می‌شد با همه پیام فرستاد.</p>
+    <p>ناگهان یک پیام از یک کاربر ناشناس رسید: «سلام! می‌خوای جایزه ببری؟ فقط کافیه اسم و آدرس خونه‌ات رو برام بفرستی!»</p>
+    <p>حسن لحظه‌ای مکث کرد. دلش می‌خواست جایزه بگیرد، اما چیزی درونش می‌گفت که این درست نیست. تبلت را گذاشت زمین و رفت پیش پدرش. پدرش با جدیت گفت: «حسن، هیچوقت اطلاعات شخصی‌ات را برای غریبه‌ها نفرست. نه اسم خانوادگی، نه آدرس، نه شماره تلفن. این یکی از مهم‌ترین قوانین اینترنت است.»</p>
+    <p>حسن فهمید که خوب کرده که از پدرش پرسیده است. آن کاربر ناشناس را بلاک کرد و احساس کرد کار درستی انجام داده است.</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('p3')">◀ قبلی</button>
+    <span class="page-num">۴ / ۱۶</span>
+    <button class="btn btn-next" onclick="goTo('p5')">بعدی ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 5 ══════════════════ -->
+<div class="page-card" id="p5">
+  <div class="page-band band-teal">
+    <span>📖 داستان</span><span>صفحهٔ ۵ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">📰</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">سه‌شنبه — خبر دروغ در شبکه‌های اجتماعی</div>
+  <div class="story-text">
+    <p>سه‌شنبه، خواهر بزرگ‌تر حسن، نگار، یک عکس در گروه خانوادگی فرستاد. در عکس نوشته شده بود: «فوری! نوشیدن آب سرد باعث سکتهٔ قلبی می‌شود! این پیام را برای همه بفرستید!»</p>
+    <p>مادربزرگ حسن داشت این پیام را برای همسایه‌ها می‌فرستاد. حسن که تازه از معلمش یاد گرفته بود چطور اخبار را بررسی کند، گفت: «صبر کنید! بذارید اول چک کنیم این درسته یا نه.»</p>
+    <p>حسن در اینترنت جستجو کرد و در چند سایت معتبر پزشکی پیدا کرد که این ادعا کاملاً دروغ است. با هیجان به خانواده‌اش نشان داد. مادربزرگ تعجب کرد: «پس این همه سال این خبر رو باور کرده بودم؟»</p>
+    <p>حسن گفت: «مامان‌بزرگ، اینترنت پر از اخبار درست و دروغ هست. باید قبل از اینکه هر چیزی رو جلو بدیم، بررسی کنیم.»</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('p4')">◀ قبلی</button>
+    <span class="page-num">۵ / ۱۶</span>
+    <button class="btn btn-next" onclick="goTo('p6')">بعدی ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 6 ══════════════════ -->
+<div class="page-card" id="p6">
+  <div class="page-band band-red">
+    <span>📖 داستان</span><span>صفحهٔ ۶ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">🎮</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">چهارشنبه — بازی‌های آنلاین و وقت‌گذرانی بی‌رویه</div>
+  <div class="story-text">
+    <p>چهارشنبه، حسن یک بازی آنلاین پیدا کرد که باید با بازیکنان مختلف از سراسر دنیا رقابت می‌کرد. بازی آنقدر جذاب بود که حسن متوجه نشد چند ساعت گذشته است.</p>
+    <p>مادرش آمد و گفت: «حسن! ظهر شده. ناهار نخوردی، درس نخوندی، حتی یه بار هم از جات بلند نشدی!»</p>
+    <p>حسن دستش را از تبلت گرفت. احساس کرد سرش درد می‌کند و چشمانش می‌سوزند. پدرش با آرامش توضیح داد: «اینترنت و بازی‌های آنلاین مثل شیرینی هستند. خوردن مقداری از آن خوب است، ولی اگر همه روز فقط شیرینی بخوری، بیمار می‌شوی. برای هر کاری باید وقت مشخصی داشته باشیم.»</p>
+    <p>از آن روز به بعد، حسن با پدرش یک جدول زمانی برای استفاده از تبلت نوشت. هر روز حداکثر یک ساعت.</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('p5')">◀ قبلی</button>
+    <span class="page-num">۶ / ۱۶</span>
+    <button class="btn btn-next" onclick="goTo('p7')">بعدی ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 7 ══════════════════ -->
+<div class="page-card" id="p7">
+  <div class="page-band band-indigo">
+    <span>📖 داستان</span><span>صفحهٔ ۷ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">😢</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">پنجشنبه — وقتی کلمات در فضای مجازی آسیب می‌رسانند</div>
+  <div class="story-text">
+    <p>پنجشنبه، در گروه کلاسی، یکی از بچه‌ها عکس خنده‌داری از یک دوست دیگر گذاشته بود و همه داشتند مسخره می‌کردند. حسن هم خواست یک کامنت بذارد، اما دید که آن دوست در گروه نوشته: «خواهش می‌کنم این عکس رو پاک کنید.»</p>
+    <p>حسن به جای نوشتن کامنت خنده‌دار، نوشت: «این کار درستی نیست. دوستمون ناراحت شده. باید عکس رو پاک کنیم.» چند نفر دیگر هم موافقت کردند.</p>
+    <p>بعداً آن دوست به حسن پیام داد: «ممنون که کمک کردی.» حسن دریافت که در فضای مجازی هم مثل دنیای واقعی باید با احترام رفتار کرد. آنچه در اینترنت می‌نویسیم، ممکن است دل کسی را بشکند — حتی اگر فکر کنیم فقط شوخی است.</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('p6')">◀ قبلی</button>
+    <span class="page-num">۷ / ۱۶</span>
+    <button class="btn btn-next" onclick="goTo('p8')">بعدی ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 8 ══════════════════ -->
+<div class="page-card" id="p8">
+  <div class="page-band band-pink">
+    <span>📖 داستان</span><span>صفحهٔ ۸ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">🔐</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">جمعه — امنیت رمز عبور و حفاظت از حساب‌های کاربری</div>
+  <div class="story-text">
+    <p>جمعه، حسن خواست برای خودش یک حساب کاربری در یک سایت آموزشی بسازد. معلم‌شان گفته بود می‌توانند در این سایت تمرین‌های علوم انجام دهند.</p>
+    <p>هنگامی که نوبت انتخاب رمز عبور شد، حسن نوشت: «hassan123». پدرش که کنارش نشسته بود گفت: «نه، این رمز خیلی ضعیف است. هر کسی می‌تواند حدسش بزند.»</p>
+    <p>با هم یاد گرفتند که رمز عبور قوی باید: ترکیبی از حروف بزرگ و کوچک داشته باشد، شامل اعداد باشد، و به‌راحتی قابل حدس‌زدن نباشد. همچنین پدرش گفت که رمز عبور را نباید برای هیچکس — حتی بهترین دوست — گفت.</p>
+    <p>حسن رمز جدیدی ساخت و آن را در یک دفترچهٔ مخصوص نوشت که فقط خودش و پدر و مادرش می‌دانستند کجاست.</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('p7')">◀ قبلی</button>
+    <span class="page-num">۸ / ۱۶</span>
+    <button class="btn btn-next" onclick="goTo('p9')">بعدی ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 9 ══════════════════ -->
+<div class="page-card" id="p9">
+  <div class="page-band band-blue">
+    <span>📖 داستان</span><span>صفحهٔ ۹ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">🌐</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">شنبهٔ بعد — کلاس سواد رسانه‌ای در مدرسه</div>
+  <div class="story-text">
+    <p>هفتهٔ بعد، معلم‌شان خانم رضایی، کلاسی ویژه دربارهٔ «سواد رسانه‌ای» برگزار کرد. خانم رضایی گفت: «سواد رسانه‌ای یعنی توانایی خواندن، تحلیل کردن و ارزیابی پیام‌هایی که از رسانه‌ها دریافت می‌کنیم.»</p>
+    <p>حسن دستش را بالا برد و گفت: «خانم، من این هفته خیلی چیزها یاد گرفتم. مثلاً اخباری که می‌خونیم رو باید از چند جا چک کنیم.» خانم رضایی لبخندی زد و گفت: «دقیقاً! این مهم‌ترین مهارت است — این‌که قبل از باور کردن و بازنشر دادن هر چیزی، آن را بررسی کنیم.»</p>
+    <p>بچه‌ها یاد گرفتند که سه سؤال مهم از هر خبر بپرسند: این خبر از کجا آمده؟ آیا منبع قابل اعتماد است؟ آیا خبر در جاهای دیگری هم تأیید شده است؟</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('p8')">◀ قبلی</button>
+    <span class="page-num">۹ / ۱۶</span>
+    <button class="btn btn-next" onclick="goTo('p10')">بعدی ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 10 ══════════════════ -->
+<div class="page-card" id="p10">
+  <div class="page-band band-green">
+    <span>📖 داستان</span><span>صفحهٔ ۱۰ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">🤝</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">دوستی آنلاین و دوستی واقعی — فرق‌ها و شباهت‌ها</div>
+  <div class="story-text">
+    <p>در همان کلاس، خانم رضایی از بچه‌ها پرسید: «به نظر شما دوستی آنلاین با دوستی واقعی چه فرقی دارد؟» بچه‌ها جواب‌های مختلفی دادند.</p>
+    <p>حسن گفت: «در دنیای واقعی، می‌بینیم طرف مقابل کیه. در اینترنت، نمی‌دونیم کسی که باهاش حرف می‌زنیم واقعاً کیه.» خانم رضایی تأیید کرد: «کاملاً درست. کسی که در اینترنت ادعا می‌کند هم‌سن شما است، ممکن است یک بزرگسال باشد. به همین دلیل است که نباید با غریبه‌های آنلاین اطلاعات شخصی رد و بدل کنیم.»</p>
+    <p>یکی از دوستان حسن گفت: «پس اینترنت بده؟» خانم رضایی گفت: «نه! اینترنت ابزار فوق‌العاده‌ای است. فقط باید بدانیم که چطور از آن درست استفاده کنیم — درست مثل یک چاقو که می‌تواند برای پختن غذا استفاده شود یا اگر بی‌احتیاطی کنیم، به ما آسیب بزند.»</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('p9')">◀ قبلی</button>
+    <span class="page-num">۱۰ / ۱۶</span>
+    <button class="btn btn-next" onclick="goTo('p11')">بعدی ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 11 ══════════════════ -->
+<div class="page-card" id="p11">
+  <div class="page-band band-orange">
+    <span>📖 داستان</span><span>صفحهٔ ۱۱ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">📸</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">حریم خصوصی دیجیتال — چه چیزی را نباید منتشر کرد؟</div>
+  <div class="story-text">
+    <p>یکشنبه، خواهر حسن نگار می‌خواست یک عکس خانوادگی در شبکه‌های اجتماعی بگذارد. عکسی که در آن آدرس خانه‌شان روی در ورودی دیده می‌شد.</p>
+    <p>حسن گفت: «نگار خانم! صبر کن. اون عکس آدرس خونه‌مون توشه!» نگار متعجب شد: «خب که چی؟» حسن توضیح داد: «اگه کسی بد‌خواه باشه، می‌تونه از روی عکس بفهمه ما کجا زندگی می‌کنیم.»</p>
+    <p>نگار فکر کرد و گفت: «راست می‌گی. حواسم نبود.» عکس را ویرایش کردند و آن قسمت را پوشاندند.</p>
+    <p>حسن یاد گرفت که هر عکسی که در اینترنت می‌گذاریم باید دقیق بررسی شود: آیا اطلاعاتی در آن هست که ممکن است حریم خصوصی‌مان را به خطر بیندازد؟ آیا موقعیت جغرافایی دقیق‌مان مشخص است؟</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('p10')">◀ قبلی</button>
+    <span class="page-num">۱۱ / ۱۶</span>
+    <button class="btn btn-next" onclick="goTo('p12')">بعدی ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 12 ══════════════════ -->
+<div class="page-card" id="p12">
+  <div class="page-band band-purple">
+    <span>📖 داستان</span><span>صفحهٔ ۱۲ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">💡</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">اینترنت به‌عنوان ابزار یادگیری — قدرت دانش آنلاین</div>
+  <div class="story-text">
+    <p>دوشنبه، حسن برای یک پروژهٔ هنری نیاز به اطلاعات دربارهٔ نقاشی‌های ایرانی داشت. این بار با آرامش و هوشمندی جستجو کرد. وارد سایت‌های موزه‌های معتبر شد و اطلاعات دقیقی پیدا کرد.</p>
+    <p>حسن فهمید که اینترنت مثل یک کتابخانهٔ غول‌پیکر است که اگر بدانی چطور در آن دنبال چیزی بگردی، گنج‌های فراوانی پیدا می‌کنی. ولی مثل هر کتابخانه‌ای، باید بدانی کتاب‌های خوب را از بد‌ها تشخیص بدهی.</p>
+    <p>معلم هنرشان وقتی پروژهٔ حسن را دید، گفت: «حسن، اطلاعاتت خیلی دقیق و کامل بود. منابعت را از کجا پیدا کردی؟» حسن با افتخار گفت: «از سایت‌های موزه‌های رسمی. یاد گرفتم که فقط از منابع معتبر استفاده کنم.»</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('p11')">◀ قبلی</button>
+    <span class="page-num">۱۲ / ۱۶</span>
+    <button class="btn btn-next" onclick="goTo('p13')">بعدی ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 13 ══════════════════ -->
+<div class="page-card" id="p13">
+  <div class="page-band band-teal">
+    <span>📖 داستان</span><span>صفحهٔ ۱۳ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">🛑</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">سه‌شنبه — وقتی چیز ناراحت‌کننده‌ای در اینترنت می‌بینیم</div>
+  <div class="story-text">
+    <p>سه‌شنبه عصر، حسن در حین جستجو در اینترنت، به یک تصویر ناراحت‌کننده برخورد. تصویری که نباید می‌دید و دلش را آشوب کرد.</p>
+    <p>بلافاصله تبلت را بست و نزد مادرش رفت. با صدایی که کمی می‌لرزید گفت: «مامان، یه چیز بدی دیدم.» مادرش با آرامش بغلش کرد و گفت: «خوب کردی که اومدی پیشم. این کار شجاعانه‌ای بود.»</p>
+    <p>با هم آن سایت را گزارش دادند. مادرش توضیح داد که در اینترنت، مثل دنیای واقعی، جاهایی هستند که برای کودکان مناسب نیستند. اگر کودکی چیز ناراحت‌کننده‌ای دید، باید فوراً صفحه را ببندد و به یک بزرگسال مورد اعتماد بگوید.</p>
+    <p>حسن فهمید که گفتن این‌گونه مسائل به پدر و مادر نشانهٔ ضعف نیست؛ بلکه نشانهٔ عقل و شجاعت است.</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('p12')">◀ قبلی</button>
+    <span class="page-num">۱۳ / ۱۶</span>
+    <button class="btn btn-next" onclick="goTo('p14')">بعدی ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 14 ══════════════════ -->
+<div class="page-card" id="p14">
+  <div class="page-band band-red">
+    <span>📖 داستان</span><span>صفحهٔ ۱۴ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">🌟</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">چهارشنبه — حسن معلم کوچک می‌شود</div>
+  <div class="story-text">
+    <p>چهارشنبه، حسن در مدرسه با دوستش علی صحبت کرد. علی گفته بود که دارد به یک غریبه در اینترنت اطلاعات می‌دهد چون آن آدم قول داده برایش یک کارت هدیهٔ بازی بفرستد.</p>
+    <p>حسن با جدیت گفت: «علی، صبر کن! این نوع پیام‌ها تله هستند. کسی که واقعاً می‌خواد کمک کنه، اطلاعات شخصی نمی‌خواد.» و بعد همهٔ چیزهایی که آن هفته یاد گرفته بود را برای علی توضیح داد.</p>
+    <p>علی گوش داد و در آخر گفت: «چقدر خوب که بهم گفتی! نزدیک بود اشتباه بزرگی بکنم.» حسن احساس کرد که دانستن این چیزها نه‌تنها برای خودش مفید بوده، بلکه می‌تواند به دیگران هم کمک کند.</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('p13')">◀ قبلی</button>
+    <span class="page-num">۱۴ / ۱۶</span>
+    <button class="btn btn-next" onclick="goTo('p15')">بعدی ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 15 ══════════════════ -->
+<div class="page-card" id="p15">
+  <div class="page-band band-indigo">
+    <span>📖 داستان</span><span>صفحهٔ ۱۵ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">📋</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">پنجشنبه — قوانین طلایی اینترنت ایمن</div>
+  <div class="story-text">
+    <p>پنجشنبه، خانم رضایی از بچه‌ها خواست که «قوانین طلایی اینترنت ایمن» را روی مقوا بنویسند و در کلاس آویزان کنند. حسن با دقت نوشت:</p>
+    <p><strong>۱.</strong> هیچ‌وقت اطلاعات شخصی‌ام را برای غریبه‌ها نمی‌فرستم.<br>
+    <strong>۲.</strong> قبل از باور کردن هر خبری، آن را بررسی می‌کنم.<br>
+    <strong>۳.</strong> با احترام و مهربانی با دیگران در اینترنت رفتار می‌کنم.<br>
+    <strong>۴.</strong> وقت استفاده از اینترنت را محدود می‌کنم.<br>
+    <strong>۵.</strong> اگر چیز بدی دیدم، به پدر یا مادرم می‌گویم.<br>
+    <strong>۶.</strong> رمز عبورم را محرمانه نگه می‌دارم.</p>
+    <p>خانم رضایی از حسن خواست که این قوانین را برای همهٔ کلاس بلندخوانی کند. حسن با افتخار این کار را کرد.</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('p14')">◀ قبلی</button>
+    <span class="page-num">۱۵ / ۱۶</span>
+    <button class="btn btn-next" onclick="goTo('p16')">بعدی ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 16 ══════════════════ -->
+<div class="page-card" id="p16">
+  <div class="page-band band-pink">
+    <span>📖 داستان</span><span>صفحهٔ ۱۶ از ۱۶</span>
+  </div>
+  <div class="img-box">
+    <div class="img-emoji">🌈</div>
+    <div class="img-prompt-label">🖼 پرامپت تصویرسازی</div>
+  </div>
+  <div class="img-caption">پایان داستان — حسن یک کاربر هوشمند اینترنت شد</div>
+  <div class="story-text">
+    <p>آخر هفته، حسن روی تختش نشست و به هفته‌ای که گذشته فکر کرد. هفته‌ای که با یک تبلت جدید شروع شده بود و با یک دیدگاه جدید تمام شده بود.</p>
+    <p>او دریافته بود که اینترنت نه دشمن است و نه جای ترس. اینترنت یک ابزار قدرتمند است — مثل یک هواپیما. اگر کسی بلد باشد آن را خوب هدایت کند، می‌تواند به مقصدهای شگفت‌انگیزی برسد. اما اگر بی‌تجربه پشت فرمان بنشیند، ممکن است اتفاق بدی بیفتد.</p>
+    <p>حسن تصمیم گرفت که یک «کاربر هوشمند اینترنت» باشد: کسی که با دانش و مسئولیت‌پذیری از دنیای دیجیتال استفاده می‌کند؛ کسی که خودش را و دیگران را از خطرهای آنلاین حفظ می‌کند؛ و کسی که اینترنت را برای یادگیری، رشد و ارتباط با دنیا به‌کار می‌گیرد.</p>
+    <p>هفته‌ای که با یک تبلت جدید شروع شده بود، با یک حسن جدید تمام شد.</p>
+  </div>
+  <div class="nav-bar">
+    <button class="btn btn-prev" onclick="goTo('p15')">◀ قبلی</button>
+    <span class="page-num">۱۶ / ۱۶</span>
+    <button class="btn btn-quiz" onclick="goTo('quiz-page')">آزمون ▶</button>
+  </div>
+</div>
+
+<!-- ══════════════════ END PAGE ══════════════════ -->
+<div class="page-card" id="end-page">
+  <div class="end-emoji">🏆</div>
+  <h2>پایان داستان</h2>
+  <p>حسن یاد گرفت که یک کاربر هوشمند، مسئول و محترم در دنیای دیجیتال باشد. تو هم می‌توانی!</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
+    <button class="btn btn-quiz" onclick="goTo('quiz-page')">📝 آزمون</button>
+    <button class="btn btn-home" onclick="goTo('cover-page')" style="color:#37474F;">🏠 صفحهٔ اول</button>
+  </div>
+</div>
+
+<!-- ══════════════════ QUIZ ══════════════════ -->
+<div class="page-card" id="quiz-page">
+  <div class="quiz-title">📝 آزمون سواد رسانه‌ای</div>
+  <div class="quiz-sub">سه سؤال · امتیاز از ۳</div>
+
+  <!-- Q1 -->
+  <div class="q-block">
+    <div class="q-label">۱. قبل از انتشار یک خبر در اینترنت چه کاری باید انجام دهیم؟</div>
+    <div class="q-opts">
+      <button class="q-opt" onclick="answer(this,1,false)">سریع برای همه بفرستیم</button>
+      <button class="q-opt" onclick="answer(this,1,true)">بررسی صحت خبر</button>
+      <button class="q-opt" onclick="answer(this,1,false)">فقط اگر جالب بود بفرستیم</button>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-block">
+    <div class="q-label">۲. آیا باید اطلاعات شخصی خود را برای افراد ناشناس ارسال کنیم؟</div>
+    <div class="q-opts">
+      <button class="q-opt" onclick="answer(this,2,false)">بله، اگر جایزه قول داده باشند</button>
+      <button class="q-opt" onclick="answer(this,2,true)">خیر</button>
+      <button class="q-opt" onclick="answer(this,2,false)">فقط اسم کوچیکمون رو بگیم</button>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-block">
+    <div class="q-label">۳. کاربر خوب اینترنت چگونه رفتار می‌کند؟</div>
+    <div class="q-opts">
+      <button class="q-opt" onclick="answer(this,3,false)">هر چیزی دید منتشر می‌کند</button>
+      <button class="q-opt" onclick="answer(this,3,false)">فقط برای خودش از اینترنت استفاده می‌کند</button>
+      <button class="q-opt" onclick="answer(this,3,true)">با احترام و مسئولیت‌پذیری</button>
+    </div>
+  </div>
+
+  <div class="quiz-result" id="quiz-result">
+    <div class="star-row" id="quiz-stars"></div>
+    <div class="score" id="quiz-score"></div>
+    <div class="msg" id="quiz-msg"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px;">
+      <button class="btn btn-next" onclick="resetQuiz()">🔄 آزمون مجدد</button>
+      <button class="btn btn-home" onclick="goTo('about-page')" style="color:#37474F;">📄 معرفی پروژه</button>
+    </div>
+  </div>
+
+  <div class="nav-bar" style="margin-top:10px;">
+    <button class="btn btn-prev" onclick="goTo('p16')">◀ بازگشت به داستان</button>
+    <button class="btn btn-home" onclick="goTo('cover-page')" style="color:#37474F;">🏠 جلد</button>
+  </div>
+</div>
+
+<!-- ══════════════════ ABOUT PAGE ══════════════════ -->
+<div class="page-card" id="about-page">
+  <div class="about-title">⚙️ فرآیند تولید پروژه</div>
+
+  <div class="about-section">
+    <p>این پروژه با استفاده از ابزارهای هوش مصنوعی طراحی شده است.</p>
+  </div>
+
+  <div class="about-section">
+    <h3>🛠 ابزارهای استفاده‌شده</h3>
+    <ul>
+      <li>ChatGPT برای طراحی داستان و محتوای آموزشی</li>
+      <li>ChatGPT برای طراحی رابط کاربری</li>
+      <li>ChatGPT برای تولید کد HTML/CSS/JavaScript</li>
+    </ul>
+  </div>
+
+  <div class="about-section">
+    <h3>🎨 ویژگی‌های طراحی</h3>
+    <ul>
+      <li>رنگ‌های شاد کودکانه</li>
+      <li>گوشه‌های گرد</li>
+      <li>سایه‌های نرم</li>
+      <li>آیکون‌های مرتبط با کتاب، اینترنت و آموزش</li>
+      <li>طراحی مشابه کتاب الکترونیکی آموزشی</li>
+    </ul>
+  </div>
+
+  <div class="about-section">
+    <h3>🖼 پرامپت‌های تولید تصویر (برای هوش مصنوعی)</h3>
+    <table class="prompt-table">
+      <tr><th>صفحه</th><th>پرامپت انگلیسی پیشنهادی</th></tr>
+      <tr><td>۱ — معرفی حسن</td><td>A cheerful 10-year-old Iranian boy with black hair holding a tablet, cartoon style, bright colors, child-friendly illustration</td></tr>
+      <tr><td>۲ — شنبه صبح</td><td>A kind Iranian mother handing a new tablet to her excited son in a cozy apartment, warm morning light, cartoon style</td></tr>
+      <tr><td>۳ — جستجو در اینترنت</td><td>A young boy searching the internet on a tablet, looking thoughtful at search results, cartoon illustration, educational theme</td></tr>
+      <tr><td>۴ — پیام ناشناس</td><td>A child looking at a suspicious message on a phone, thinking carefully, cartoon style, warning icon visible</td></tr>
+      <tr><td>۵ — خبر دروغ</td><td>A family group chat on mobile with a fake news message, grandmother about to forward it, child stopping her, colorful cartoon</td></tr>
+      <tr><td>۶ — بازی آنلاین</td><td>A boy playing online games on a tablet for too long, mother noticing the time, cartoon style with clock in background</td></tr>
+      <tr><td>۷ — آزار سایبری</td><td>Two children at school, one looking sad at a phone, friend supporting them, anti-bullying theme, warm cartoon illustration</td></tr>
+      <tr><td>۸ — رمز عبور</td><td>A father teaching his son about strong passwords on a computer, key and lock icons, cartoon educational illustration</td></tr>
+      <tr><td>۹ — کلاس سواد رسانه‌ای</td><td>A classroom scene with a teacher presenting media literacy concepts on a whiteboard, happy children listening, cartoon style</td></tr>
+      <tr><td>۱۰ — دوستی آنلاین</td><td>Split image showing real friendship vs online friendship, child learning the difference, colorful cartoon illustration</td></tr>
+      <tr><td>۱۱ — حریم خصوصی</td><td>A girl about to post a photo with home address visible, brother pointing it out, privacy shield icon, cartoon style</td></tr>
+      <tr><td>۱۲ — یادگیری آنلاین</td><td>A child learning from a reputable educational website, books and lightbulb around him, cheerful digital library cartoon</td></tr>
+      <tr><td>۱۳ — محتوای مضر</td><td>A child closing a tablet after seeing something bad, running to parents, red stop sign icon, protective cartoon illustration</td></tr>
+      <tr><td>۱۴ — معلم کوچک</td><td>Two school friends talking seriously, one teaching the other about internet safety, cartoon style, warm colors</td></tr>
+      <tr><td>۱۵ — قوانین طلایی</td><td>A child writing golden rules of internet safety on a poster, colorful text, stars and checkmarks, educational cartoon</td></tr>
+      <tr><td>۱۶ — پایان</td><td>A happy boy holding a tablet with a shield icon, rainbow in background, surrounded by internet safety symbols, joyful cartoon</td></tr>
+    </table>
+  </div>
+
+  <div class="nav-bar" style="margin-top:20px;">
+    <button class="btn btn-prev" onclick="goTo('quiz-page')">◀ آزمون</button>
+    <button class="btn btn-home" onclick="goTo('cover-page')" style="color:#37474F;">🏠 صفحهٔ اول</button>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ───── STATE ─────
+const STORY_PAGES = ['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10','p11','p12','p13','p14','p15','p16'];
+let current = 'cover-page';
+let quizAnswers = {1:null,2:null,3:null};
+let quizDone = false;
+
+// ───── NAVIGATION ─────
+function goTo(id) {
+  const fromEl = document.getElementById(current);
+  const toEl   = document.getElementById(id);
+  if (!fromEl || !toEl) { console.error('goTo: element not found', current, id); return; }
+  fromEl.classList.remove('active');
+  toEl.classList.add('active');
+  current = id;
+  updateProgress();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function startBook() { goTo('p1'); }
+
+// ───── PROGRESS BAR ─────
+function updateProgress() {
+  const idx = STORY_PAGES.indexOf(current);
+  let pct = 0;
+  if (current === 'cover-page') pct = 0;
+  else if (idx >= 0) pct = Math.round(((idx+1)/16)*100);
+  else if (['end-page','quiz-page','about-page'].includes(current)) pct = 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+// ───── QUIZ ─────
+function answer(btn, qNum, isCorrect) {
+  if (quizDone) return;
+  const opts = btn.closest('.q-opts').querySelectorAll('.q-opt');
+  opts.forEach(o => {
+    o.classList.remove('selected','correct','wrong');
+    o.disabled = true;
+  });
+  if (isCorrect) {
+    btn.classList.add('correct');
+    quizAnswers[qNum] = true;
+  } else {
+    btn.classList.add('wrong');
+    quizAnswers[qNum] = false;
+    // show correct
+    opts.forEach(o => {
+      if (o.onclick.toString().includes('true')) o.classList.add('correct');
+    });
+  }
+  checkQuizDone();
+}
+
+function checkQuizDone() {
+  if (Object.values(quizAnswers).every(v => v !== null)) {
+    quizDone = true;
+    showResult();
+  }
+}
+
+function showResult() {
+  const score = Object.values(quizAnswers).filter(Boolean).length;
+  const el = document.getElementById('quiz-result');
+  el.style.display = 'block';
+  document.getElementById('quiz-score').textContent = score + ' از ۳';
+  const stars = score === 3 ? '⭐⭐⭐' : score === 2 ? '⭐⭐' : score === 1 ? '⭐' : '';
+  document.getElementById('quiz-stars').textContent = stars;
+  const msgs = {
+    3: '🎉 آفرین! تو یک کاربر هوشمند اینترنت هستی! همهٔ جواب‌ها درست بود!',
+    2: '👍 خوب بود! دو تا از سه سؤال رو درست جواب دادی. دوباره امتحان کن!',
+    1: '💪 تلاش خوبی کردی! با خواندن دوبارهٔ داستان می‌تونی بهتر بشی.',
+    0: '📖 داستان رو دوباره بخون و دوباره آزمون رو امتحان کن!'
+  };
+  document.getElementById('quiz-msg').textContent = msgs[score];
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function resetQuiz() {
+  quizAnswers = {1:null,2:null,3:null};
+  quizDone = false;
+  const opts = document.querySelectorAll('.q-opt');
+  opts.forEach(o => {
+    o.classList.remove('selected','correct','wrong');
+    o.disabled = false;
+  });
+  document.getElementById('quiz-result').style.display = 'none';
+}
+
+// init
+updateProgress();
+</script>
+</body>
+</html>
